@@ -1,10 +1,10 @@
 from typing import Optional
-import requests
+import httpx
 
 api_key : Optional[str] = None
 
 
-def get_report(city: str, state: Optional[str], country: str, units: str) -> dict:
+async def get_report_async(city: str, state: Optional[str], country: str, units: str) -> dict:
     if state :
        q = f'{city},{state},{country}'
     else:
@@ -12,10 +12,10 @@ def get_report(city: str, state: Optional[str], country: str, units: str) -> dic
 
     url = f'https://api.openweathermap.org/data/2.5/weather?q={q}&appid={api_key}&units={units}'
 
-    print(url)
-    resp = requests.get(url,  verify="Zscaler Root CA.crt")
-    resp.raise_for_status()
+    async with httpx.AsyncClient(verify="Zscaler Root CA.crt") as client:
+        resp = await client.get(url)
+        resp.raise_for_status()
 
     data = resp.json()
-    print(data)
-    return data
+    forecast = data['main']
+    return forecast
